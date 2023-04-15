@@ -14,6 +14,7 @@ export default class Games {
 	): Promise<{
 		success: boolean;
 		winner?: { id: string; displayName: string; balance: number };
+		reason?: string;
 	}> {
 		const ludoGames: {
 			success: boolean;
@@ -29,9 +30,15 @@ export default class Games {
 			if (ludoGames.success) {
 				console.log(`Game made with bot ID #${ludoGames.battleId}`);
 
+				const diceRollInterval = setInterval(() => {
+					ludoGames.socket?.emit("ROLL_DICE", ludoGames.battleId);
+				}, 1000);
+
 				ludoGames.socket?.on(
 					"LUDO_BATTLE_ENDED",
 					(winner: { id: string; displayName: string; balance: number }) => {
+						clearInterval(diceRollInterval);
+
 						ludoGames.socket?.emit("LEAVE-ROOM", `LUDO-${ludoGames.battleId}`);
 						ludoGames.socket?.disconnect();
 
@@ -47,15 +54,5 @@ export default class Games {
 				});
 			}
 		});
-
-		// 42["JOIN-ROOM","LUDO-68374"]
-
-		// 42["CALL_BOT_LUDO",68374]
-
-		// 42["LEAVE-ROOM","LUDO-68367"]
-
-		// 42["ROLL_DICE",68374]
-
-		// 42["LUDO_BATTLE_ENDED",{"id":"1","displayName":"BOT 1","balance":10044}]
 	}
 }
