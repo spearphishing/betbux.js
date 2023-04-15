@@ -1,3 +1,5 @@
+// process.env.DEBUG = "*";
+
 import axios from "axios";
 import { io, Socket } from "socket.io-client";
 

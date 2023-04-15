@@ -11,6 +11,7 @@ export async function createLudoGame(
 	success: boolean;
 	reason?: string;
 	battleId?: number;
+	socket?: Socket;
 }> {
 	const soc: Socket = await createWebsocketSession(authorizationToken);
 
@@ -26,12 +27,15 @@ export async function createLudoGame(
 		}, 1000);
 
 		soc.on("CREATE_LUDO_BATTLE_SUCCESS", (battleData: { battleId: number }) => {
-			soc.disconnect();
 			const { battleId } = battleData;
+
+			soc.emit("JOIN-ROOM", `LUDO-${battleId}`);
+			soc.emit("CALL_BOT_LUDO", battleId);
 
 			resolve({
 				success: true,
 				battleId,
+				socket: soc,
 			});
 		});
 
