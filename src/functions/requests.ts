@@ -1,3 +1,4 @@
+// Socket debugging
 // process.env.DEBUG = "*";
 
 import axios from "axios";
@@ -31,6 +32,11 @@ export async function doRequest<ResponseType>(
 	return data;
 }
 
+/**
+ * Creates and returns an authorized websocket connection.
+ * @param {string} authenticationToken
+ * @returns {Promise<Socket>}
+ */
 export function createWebsocketSession(
 	authenticationToken: string,
 ): Promise<Socket> {

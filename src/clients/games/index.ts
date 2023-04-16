@@ -1,4 +1,5 @@
-import { createLudoGame, createStairsGame } from "../../functions";
+import { createLudoGame, createStairsGame, doRequest } from "../../functions";
+import { feedGame } from "./types";
 import { Socket } from "socket.io-client";
 
 type GameOutcome = {
@@ -14,6 +15,23 @@ export default class Games {
 		this.#authorizationToken = authorizationToken;
 	}
 
+	/**
+	 * Fetches the live feed of user bets
+	 * @returns {anyPromise<feedGame[]>}
+	 */
+	public async liveFeed(): Promise<feedGame[]> {
+		return await doRequest({
+			url: "https://api.betbux.gg/user/live-feed",
+			method: "GET",
+		});
+	}
+
+	/**
+	 * Play a game of ludo given a cost and amount of steps.
+	 * @param {number} cost
+	 * @param {35 | 49 | 63} steps
+	 * @returns {Promise<GameOutcome>}
+	 */
 	public async playLudo(
 		cost: number,
 		steps: 35 | 49 | 63,
@@ -56,6 +74,12 @@ export default class Games {
 		});
 	}
 
+	/**
+	 * Play a game of stairs given a cost and a number of rocks per stair.
+	 * @param {number} cost
+	 * @param {3 | 2 | 4 } rocks
+	 * @returns {Promise<GameOutcome>}
+	 */
 	public async playStairs(
 		cost: number,
 		rocks: 3 | 2 | 4,
@@ -81,7 +105,7 @@ export default class Games {
 
 					resolve({
 						success: true,
-						winner,
+						...winner,
 					});
 				});
 			} else {

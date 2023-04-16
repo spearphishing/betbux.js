@@ -86,3 +86,8 @@ export type SingleTransaction = {
 	balanceAfter: number;
 	timeStamp: string;
 };
+
+export type ChatResponse = {
+	success: boolean;
+	reason?: string;
+};

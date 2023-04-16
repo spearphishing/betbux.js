@@ -8,6 +8,12 @@ type CreateGameResponse = {
 	socket?: Socket;
 };
 
+/**
+ * Creates a game of ludo, and calls a bot.
+ * @param {string} authorizationToken
+ * @param {{ cost:number, steps:35|49|63 }} options
+ * @returns {Promise<CreateGameResponse>}
+ */
 export async function createLudoGame(
 	authorizationToken: string,
 	options: {
@@ -52,6 +58,12 @@ export async function createLudoGame(
 	});
 }
 
+/**
+ * Creates a game of stairs, and calls a bot.
+ * @param {string} authorizationToken
+ * @param {{ rocks:2|3|4; cost:number }} options
+ * @returns {Promise<CreateGameResponse>}
+ */
 export async function createStairsGame(
 	authorizationToken: string,
 	options: { rocks: 2 | 3 | 4; cost: number },

@@ -7,6 +7,7 @@ import {
 	AffiliateType,
 	AuthenticatedUserType,
 	SingleTransaction,
+	ChatResponse,
 } from "./types";
 import { AxiosError } from "axios";
 
@@ -231,10 +232,12 @@ export default class Me {
 		}
 	}
 
-	public async sendMessage(message: string): Promise<{
-		success: boolean;
-		reason?: string;
-	}> {
+	/**
+	 * Send a message in the BetBux chat.
+	 * @param {string} message
+	 * @returns {Promise<ChatResponse>}
+	 */
+	public async sendMessage(message: string): Promise<ChatResponse> {
 		const soc: Socket = await createWebsocketSession(this.#authorizationToken);
 
 		return new Promise((resolve, reject) => {
@@ -261,23 +264,29 @@ export default class Me {
 		});
 	}
 
+	/**
+	 * Send a tip via the sendMessage functionality.
+	 * @param {number} recipientUserId
+	 * @param {number} amountInRobux
+	 * @returns {Promise<ChatResponse>}
+	 */
 	public async sendTip(
 		recipientUserId: number,
 		amountInRobux: number,
-	): Promise<{
-		success: boolean;
-		reason?: string;
-	}> {
+	): Promise<ChatResponse> {
 		return this.sendMessage(`.tip ${recipientUserId} ${amountInRobux}`);
 	}
 
+	/**
+	 * Start a giveaway via the sendMessage functionality.
+	 * @param {number} amountInPeople
+	 * @param {number} robuxPerPerson
+	 * @returns {Promise<ChatResponse>}
+	 */
 	public async startGiveaway(
 		amountInPeople: number,
 		robuxPerPerson: number,
-	): Promise<{
-		success: boolean;
-		reason?: string;
-	}> {
+	): Promise<ChatResponse> {
 		return this.sendMessage(`.giveaway ${amountInPeople} ${robuxPerPerson}`);
 	}
 }

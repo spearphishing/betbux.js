@@ -8,6 +8,11 @@ export default class Users {
 		this.#authorizationToken = authorizationToken;
 	}
 
+	/**
+	 * Fetches a BetBux user via their ID.
+	 * @param {number} uid
+	 * @returns {{ success: boolean, data?: UserType, reason?: string }}
+	 */
 	public async getUser(uid: number): Promise<{
 		success: boolean;
 		data?: UserType;
