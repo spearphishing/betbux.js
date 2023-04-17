@@ -114,7 +114,6 @@ export default class Games {
 				const climbStairInterval = setInterval(() => {
 					const rand = this.getRandomNumberInclusive(0, 15);
 					stairsGame.socket?.emit("CLIMB_LADDER", stairsGame.battleId, rand);
-					console.log(`Tried Climbing: ${rand}`);
 				}, 1000);
 			} else {
 				reject({
