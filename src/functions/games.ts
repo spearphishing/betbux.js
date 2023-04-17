@@ -8,86 +8,45 @@ type CreateGameResponse = {
 	socket?: Socket;
 };
 
-/**
- * Creates a game of ludo, and calls a bot.
- * @param {string} authorizationToken
- * @param {{ cost:number, steps:35|49|63 }} options
- * @returns {Promise<CreateGameResponse>}
- */
-export async function createLudoGame(
-	authorizationToken: string,
-	options: {
-		cost: number;
-		steps: 35 | 49 | 63;
-	},
-): Promise<CreateGameResponse> {
-	const soc: Socket = await createWebsocketSession(authorizationToken);
-
-	return new Promise((resolve, reject) => {
-		setTimeout(() => {
-			soc.emit("CREATE_LUDO_BATTLE", {
-				maxPlayers: 2,
-				steps: options.steps,
-				rounds: 1,
-				isPrivate: false,
-				battleCost: options.cost,
-			});
-		}, 1000);
-
-		soc.on("CREATE_LUDO_BATTLE_SUCCESS", (battleData: { battleId: number }) => {
-			const { battleId } = battleData;
-
-			soc.emit("JOIN-ROOM", `LUDO-${battleId}`);
-			soc.emit("CALL_BOT_LUDO", battleId);
-
-			resolve({
-				success: true,
-				battleId,
-				socket: soc,
-			});
-		});
-
-		soc.on("CREATE_LUDO_BATTLE_FAIL", (reason) => {
-			soc.disconnect();
-
-			reject({
-				success: false,
-				reason,
-			});
-		});
-	});
+interface GameArguments {
+	maxPlayers: number;
+	rounds: number;
+	isPrivate: boolean;
+	battleCost: number;
 }
 
-/**
- * Creates a game of stairs, and calls a bot.
- * @param {string} authorizationToken
- * @param {{ rocks:2|3|4; cost:number }} options
- * @returns {Promise<CreateGameResponse>}
- */
-export async function createStairsGame(
+type StairsArguments = GameArguments & {
+	rocksPerRow: number;
+};
+
+type LudoArguments = GameArguments & {
+	steps: number;
+};
+
+export async function createGame(
 	authorizationToken: string,
-	options: { rocks: 2 | 3 | 4; cost: number },
+	gameMode: string,
+	argument: StairsArguments | LudoArguments,
 ): Promise<CreateGameResponse> {
 	const soc: Socket = await createWebsocketSession(authorizationToken);
 
 	return new Promise((resolve, reject) => {
 		setTimeout(() => {
-			soc.emit("CREATE_STAIRS_BATTLE", {
-				maxPlayers: 2,
-				rounds: 1,
-				rocksPerRow: options.rocks,
-				isPrivate: false,
-				battleCost: options.cost,
-			});
+			soc.emit(`CREATE_${gameMode.toUpperCase()}_BATTLE`, argument);
 		}, 100);
 
 		soc.on(
-			"CREATE_STAIRS_BATTLE_SUCCESS",
+			`CREATE_${gameMode.toUpperCase()}_BATTLE_SUCCESS`,
 			(battleData: { battleId: number }) => {
 				const { battleId } = battleData;
 
-				soc.emit("JOIN-ROOM", `STAIRS-${battleId}`);
-				soc.emit("CALL_BOT_STAIRS", battleId);
+				soc.emit("JOIN-ROOM", `${gameMode.toUpperCase()}-${battleId}`);
+
+				for (const _ of Array.from({ length: argument.maxPlayers - 1 })) {
+					setTimeout(() => {
+						soc.emit(`CALL_BOT_${gameMode.toUpperCase()}`, battleId);
+					}, 1000);
+				}
 
 				resolve({
 					success: true,
@@ -97,7 +56,7 @@ export async function createStairsGame(
 			},
 		);
 
-		soc.on("CREATE_STAIRS_BATTLE_FAIL", (reason) => {
+		soc.on(`CREATE_${gameMode.toUpperCase()}_BATTLE_FAIL`, (reason) => {
 			soc.disconnect();
 
 			reject({

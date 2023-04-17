@@ -1,4 +1,4 @@
-import { createLudoGame, createStairsGame, doRequest } from "../../functions";
+import { doRequest, createGame } from "../../functions";
 import { feedGame, GameOutcome } from "./types";
 import { Socket } from "socket.io-client";
 
@@ -35,15 +35,19 @@ export default class Games {
 	public async playLudo(
 		cost: number,
 		steps: 35 | 49 | 63,
+		players: 2 | 3 = 2,
 	): Promise<GameOutcome> {
 		const ludoGame: {
 			success: boolean;
 			reason?: string;
 			battleId?: number;
 			socket?: Socket;
-		} = await createLudoGame(this.#authorizationToken, {
-			cost,
-			steps,
+		} = await createGame(this.#authorizationToken, "LUDO", {
+			maxPlayers: players,
+			steps: steps,
+			rounds: 1,
+			isPrivate: false,
+			battleCost: cost,
 		});
 
 		return new Promise((resolve, reject) => {
@@ -83,15 +87,19 @@ export default class Games {
 	public async playStairs(
 		cost: number,
 		rocks: 3 | 2 | 4,
+		players: 2 | 3 = 2,
 	): Promise<GameOutcome> {
 		const stairsGame: {
 			success: boolean;
 			reason?: string;
 			battleId?: number;
 			socket?: Socket;
-		} = await createStairsGame(this.#authorizationToken, {
-			rocks,
-			cost,
+		} = await createGame(this.#authorizationToken, "STAIRS", {
+			maxPlayers: players,
+			rounds: 1,
+			rocksPerRow: rocks,
+			isPrivate: false,
+			battleCost: cost,
 		});
 
 		return new Promise((resolve, reject) => {
