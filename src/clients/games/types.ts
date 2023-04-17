@@ -15,4 +15,5 @@ export type GameOutcome = {
 	success: boolean;
 	winner?: { id: string; displayName: string; balance: number };
 	reason?: string;
+	players?: { id: string; displayName: string }[];
 };

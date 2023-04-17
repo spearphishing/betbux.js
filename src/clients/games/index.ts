@@ -130,4 +130,48 @@ export default class Games {
 			}
 		});
 	}
+
+	public async playMines(
+		cost: number,
+		mines: 3 | 2 | 4,
+		players: 2 | 3 = 2,
+	): Promise<GameOutcome> {
+		const minesGame: {
+			success: boolean;
+			reason?: string;
+			battleId?: number;
+			socket?: Socket;
+		} = await createGame(this.#authorizationToken, "MINES", {
+			maxPlayers: players,
+			rounds: 1,
+			minesNumber: mines,
+			isPrivate: false,
+			battleCost: cost,
+		});
+
+		return new Promise((resolve, reject) => {
+			if (minesGame.success) {
+				minesGame.socket?.on("MINES_BATTLE_ENDED", (winner) => {
+					clearInterval(pickMineInterval);
+
+					minesGame.socket?.emit("LEAVE-ROOM", `MINES-${minesGame.battleId}`);
+					minesGame.socket?.disconnect();
+
+					resolve({
+						success: true,
+						...winner,
+					});
+				});
+
+				const pickMineInterval = setInterval(() => {
+					const rand = this.getRandomNumberInclusive(0, 24);
+					minesGame.socket?.emit("FLIP_MINES_TILE", minesGame.battleId, rand);
+				}, 1000);
+			} else {
+				reject({
+					success: false,
+				});
+			}
+		});
+	}
 }
