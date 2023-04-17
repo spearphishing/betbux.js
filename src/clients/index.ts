@@ -2,6 +2,7 @@ import Me from "./me";
 import Users from "./user";
 import MarketPlace from "./marketplace";
 import Games from "./games";
+import Admin from "./admin";
 
 export class Client {
 	#authorizationToken: string | null;
@@ -9,21 +10,21 @@ export class Client {
 	constructor(authorizationToken: string | null) {
 		this.#authorizationToken = authorizationToken;
 
-		Object.defineProperty(this, "me", {
-			get: () => new Me(this.#authorizationToken || ""),
-		});
+		const clients = [
+			{ name: "me", classDef: Me },
+			{ name: "users", classDef: Users },
+			{ name: "marketplace", classDef: MarketPlace },
+			{ name: "games", classDef: Games },
+			{ name: "admin", classDef: Admin },
+		];
 
-		Object.defineProperty(this, "users", {
-			get: () => new Users(this.#authorizationToken || ""),
-		});
-
-		Object.defineProperty(this, "marketplace", {
-			get: () => new MarketPlace(this.#authorizationToken || ""),
-		});
-
-		Object.defineProperty(this, "games", {
-			get: () => new Games(this.#authorizationToken || ""),
-		});
+		for (const { name, classDef } of clients) {
+			Object.defineProperty(this, name, {
+				get() {
+					return new classDef(this.#authorizationToken || "");
+				},
+			});
+		}
 
 		return;
 	}

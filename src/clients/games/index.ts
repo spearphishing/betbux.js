@@ -44,7 +44,7 @@ export default class Games {
 			socket?: Socket;
 		} = await createGame(this.#authorizationToken, "LUDO", {
 			maxPlayers: players,
-			steps: steps,
+			steps,
 			rounds: 1,
 			isPrivate: false,
 			battleCost: cost,
