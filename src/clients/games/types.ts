@@ -10,3 +10,9 @@ export type feedGame = {
 		balance: number;
 	}[];
 };
+
+export type GameOutcome = {
+	success: boolean;
+	winner?: { id: string; displayName: string; balance: number };
+	reason?: string;
+};

@@ -1,18 +1,18 @@
 import { createLudoGame, createStairsGame, doRequest } from "../../functions";
-import { feedGame } from "./types";
+import { feedGame, GameOutcome } from "./types";
 import { Socket } from "socket.io-client";
-
-type GameOutcome = {
-	success: boolean;
-	winner?: { id: string; displayName: string; balance: number };
-	reason?: string;
-};
 
 export default class Games {
 	#authorizationToken: string;
 
 	constructor(authorizationToken: string) {
 		this.#authorizationToken = authorizationToken;
+	}
+
+	private getRandomNumberInclusive(min: number, max: number): number {
+		min = Math.ceil(min);
+		max = Math.floor(max);
+		return Math.floor(Math.random() * (max - min + 1)) + min;
 	}
 
 	/**
@@ -97,6 +97,8 @@ export default class Games {
 		return new Promise((resolve, reject) => {
 			if (stairsGame.success) {
 				stairsGame.socket?.on("STAIRS_BATTLE_ENDED", (winner) => {
+					clearInterval(climbStairInterval);
+
 					stairsGame.socket?.emit(
 						"LEAVE-ROOM",
 						`STAIRS-${stairsGame.battleId}`,
@@ -108,6 +110,12 @@ export default class Games {
 						...winner,
 					});
 				});
+
+				const climbStairInterval = setInterval(() => {
+					const rand = this.getRandomNumberInclusive(0, 15);
+					stairsGame.socket?.emit("CLIMB_LADDER", stairsGame.battleId, rand);
+					console.log(`Tried Climbing: ${rand}`);
+				}, 1000);
 			} else {
 				reject({
 					success: false,
