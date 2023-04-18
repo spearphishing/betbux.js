@@ -1,5 +1,12 @@
+import { AxiosError } from "axios";
 import { doRequest, createGame } from "../../functions";
-import { feedGame, GameOutcome } from "./types";
+import {
+	feedGame,
+	GameOutcome,
+	LudoGameData,
+	MinesGameData,
+	StairsGameData,
+} from "./types";
 import { Socket } from "socket.io-client";
 
 export default class Games {
@@ -24,6 +31,41 @@ export default class Games {
 			url: "https://api.betbux.gg/user/live-feed",
 			method: "GET",
 		});
+	}
+
+	public async getGameData(
+		gameMode: "stairs" | "mines" | "ludo" | "triple",
+		battleId: number,
+	): Promise<{
+		success: boolean;
+		gameData?:
+			| LudoGameData
+			| MinesGameData
+			| StairsGameData
+			| { error: "No stairs battle by that id was found..." };
+		reason?: string;
+	}> {
+		try {
+			const gameData = await doRequest<
+				| LudoGameData
+				| MinesGameData
+				| StairsGameData
+				| { error: "No stairs battle by that id was found..." }
+			>({
+				url: `https://api.betbux.gg/${gameMode}/get-battle/${battleId}`,
+				method: "GET",
+			});
+
+			return {
+				success: true,
+				gameData,
+			};
+		} catch (err) {
+			return {
+				success: false,
+				reason: (err as AxiosError).message,
+			};
+		}
 	}
 
 	/**
