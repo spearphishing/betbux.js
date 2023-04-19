@@ -6,6 +6,7 @@ import {
 	LudoGameData,
 	MinesGameData,
 	StairsGameData,
+	TripleGameData,
 } from "./types";
 import { Socket } from "socket.io-client";
 
@@ -33,6 +34,12 @@ export default class Games {
 		});
 	}
 
+	/**
+	 * Fetch dayta about a specific game via its battleId.
+	 * @param {"stairs" | "mines" | "ludo" | "triple"} gameMode
+	 * @param {number} battleId
+	 * @returns {Promise<{ success: boolean; gameData?: | LudoGameData | MinesGameData | StairsGameData | TripleGameData | { error: string }; reason?: string; }>}
+	 */
 	public async getGameData(
 		gameMode: "stairs" | "mines" | "ludo" | "triple",
 		battleId: number,
@@ -42,6 +49,7 @@ export default class Games {
 			| LudoGameData
 			| MinesGameData
 			| StairsGameData
+			| TripleGameData
 			| { error: "No stairs battle by that id was found..." };
 		reason?: string;
 	}> {
@@ -50,6 +58,7 @@ export default class Games {
 				| LudoGameData
 				| MinesGameData
 				| StairsGameData
+				| TripleGameData
 				| { error: "No stairs battle by that id was found..." }
 			>({
 				url: `https://api.betbux.gg/${gameMode}/get-battle/${battleId}`,
@@ -173,6 +182,13 @@ export default class Games {
 		});
 	}
 
+	/**
+	 * Play a game of mines.
+	 * @param {number} cost
+	 * @param {3 | 2 | 4} mines
+	 * @param {2 | 3 = 2} players
+	 * @returns {Promise<GameOutcome>}
+	 */
 	public async playMines(
 		cost: number,
 		mines: 3 | 2 | 4,
@@ -209,6 +225,52 @@ export default class Games {
 					const rand = this.getRandomNumberInclusive(0, 24);
 					minesGame.socket?.emit("FLIP_MINES_TILE", minesGame.battleId, rand);
 				}, 1000);
+			} else {
+				reject({
+					success: false,
+				});
+			}
+		});
+	}
+
+	public async playTriple(cost: number, players: 2 | 3 = 2) {
+		const tripleGame: {
+			success: boolean;
+			reason?: string;
+			battleId?: number;
+			socket?: Socket;
+		} = await createGame(this.#authorizationToken, "TRIPLE", {
+			maxPlayers: players,
+			rounds: 1,
+			isPrivate: false,
+			battleCost: cost,
+		});
+
+		return new Promise((resolve, reject) => {
+			if (tripleGame.success) {
+				tripleGame.socket?.on("TRIPLE_BATTLE_ENDED", (winner) => {
+					clearInterval(chooseCellInterval);
+
+					tripleGame.socket?.emit(
+						"LEAVE-ROOM",
+						`TRIPLE-${tripleGame.battleId}`,
+					);
+					tripleGame.socket?.disconnect();
+
+					resolve({
+						success: true,
+						winner,
+					});
+				});
+
+				const chooseCellInterval = setInterval(() => {
+					const rand = this.getRandomNumberInclusive(0, 34);
+					tripleGame.socket?.emit(
+						"CHANGE_CHOSEN_TILES",
+						tripleGame.battleId,
+						rand,
+					);
+				}, 500);
 			} else {
 				reject({
 					success: false,

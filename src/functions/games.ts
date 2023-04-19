@@ -30,7 +30,7 @@ type MinesArguments = GameArguments & {
 export async function createGame(
 	authorizationToken: string,
 	gameMode: string,
-	argument: StairsArguments | LudoArguments | MinesArguments,
+	argument: GameArguments | StairsArguments | LudoArguments | MinesArguments,
 ): Promise<CreateGameResponse> {
 	const soc: Socket = await createWebsocketSession(authorizationToken);
 
@@ -49,7 +49,7 @@ export async function createGame(
 				for (const _ of Array.from({ length: argument.maxPlayers - 1 })) {
 					setTimeout(() => {
 						soc.emit(`CALL_BOT_${gameMode.toUpperCase()}`, battleId);
-					}, 500);
+					}, 1000);
 				}
 
 				resolve({

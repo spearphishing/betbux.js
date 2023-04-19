@@ -70,3 +70,16 @@ export type MinesGameData = GameData & {
 		flipperId: string;
 	}[];
 };
+
+export type TripleGameData = GameData & {
+	tripleHistory: number[];
+	chosenTiles: {
+		[key: string]: {
+			displayName: string;
+			id: string;
+			state: "NONE" | "WINNER";
+			identifyingColor: number;
+		};
+	};
+	tripleSolution: number[];
+};
