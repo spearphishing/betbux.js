@@ -1,13 +1,6 @@
 import { AxiosError } from "axios";
 import { doRequest, createGame } from "../../functions";
-import {
-	feedGame,
-	GameOutcome,
-	LudoGameData,
-	MinesGameData,
-	StairsGameData,
-	TripleGameData,
-} from "./types";
+import { FeedGame, GameOutcome, AllBattles } from "./types";
 import { Socket } from "socket.io-client";
 
 export default class Games {
@@ -25,11 +18,27 @@ export default class Games {
 
 	/**
 	 * Fetches the live feed of user bets
-	 * @returns {anyPromise<feedGame[]>}
+	 * @returns {anyPromise<FeedGame[]>}
 	 */
-	public async liveFeed(): Promise<feedGame[]> {
-		return await doRequest({
+	public async liveFeed(): Promise<FeedGame[]> {
+		return await doRequest<FeedGame[]>({
 			url: "https://api.betbux.gg/user/live-feed",
+			method: "GET",
+		});
+	}
+
+	/**
+	 * Fetches a list of active battles given a game mode.
+	 * @param {"stairs" | "mines" | "ludo" | "triple"} gameMode
+	 * @returns {Promise<{ data: AllBattles[] | [] }>}
+	 */
+	public async getActiveBattles(
+		gameMode: "stairs" | "mines" | "ludo" | "triple",
+	): Promise<{
+		data: AllBattles[] | [];
+	}> {
+		return await doRequest<{ data: AllBattles[] | [] }>({
+			url: `https://api.betbux.gg/${gameMode}/get-active-battles`,
 			method: "GET",
 		});
 	}
@@ -38,7 +47,7 @@ export default class Games {
 	 * Fetch dayta about a specific game via its battleId.
 	 * @param {"stairs" | "mines" | "ludo" | "triple"} gameMode
 	 * @param {number} battleId
-	 * @returns {Promise<{ success: boolean; gameData?: | LudoGameData | MinesGameData | StairsGameData | TripleGameData | { error: string }; reason?: string; }>}
+	 * @returns {Promise<{ success: boolean; gameData?: AllBattles | { error: string }; reason?: string; }>}
 	 */
 	public async getGameData(
 		gameMode: "stairs" | "mines" | "ludo" | "triple",
@@ -46,20 +55,13 @@ export default class Games {
 	): Promise<{
 		success: boolean;
 		gameData?:
-			| LudoGameData
-			| MinesGameData
-			| StairsGameData
-			| TripleGameData
+			| AllBattles
 			| { error: "No stairs battle by that id was found..." };
 		reason?: string;
 	}> {
 		try {
 			const gameData = await doRequest<
-				| LudoGameData
-				| MinesGameData
-				| StairsGameData
-				| TripleGameData
-				| { error: "No stairs battle by that id was found..." }
+				AllBattles | { error: "No stairs battle by that id was found..." }
 			>({
 				url: `https://api.betbux.gg/${gameMode}/get-battle/${battleId}`,
 				method: "GET",

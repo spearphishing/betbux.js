@@ -1,4 +1,4 @@
-export type feedGame = {
+export type FeedGame = {
 	betAmount: number;
 	game: "MINES" | "STAIRS" | "LUDO" | "TRIPLE";
 	multi: number;
@@ -39,7 +39,7 @@ interface GameData {
 	}[];
 }
 
-export type StairsGameData = GameData & {
+type StairsGameData = GameData & {
 	ladders: number[][];
 	stones: number[][];
 	filledItems: object;
@@ -47,7 +47,7 @@ export type StairsGameData = GameData & {
 	stonesPerRow: number;
 };
 
-export type LudoGameData = GameData & {
+type LudoGameData = GameData & {
 	mapName: string;
 	totalSteps: number;
 	currentStep: number;
@@ -59,7 +59,7 @@ export type LudoGameData = GameData & {
 	};
 };
 
-export type MinesGameData = GameData & {
+type MinesGameData = GameData & {
 	minesNumber: 2 | 3 | 4;
 	creatorClientSeed?: string;
 	serverSeed?: string;
@@ -71,7 +71,7 @@ export type MinesGameData = GameData & {
 	}[];
 };
 
-export type TripleGameData = GameData & {
+type TripleGameData = GameData & {
 	tripleHistory: number[];
 	chosenTiles: {
 		[key: string]: {
@@ -83,3 +83,9 @@ export type TripleGameData = GameData & {
 	};
 	tripleSolution: number[];
 };
+
+export type AllBattles =
+	| LudoGameData
+	| MinesGameData
+	| StairsGameData
+	| TripleGameData;
