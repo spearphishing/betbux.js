@@ -1,13 +1,13 @@
 import { AxiosError } from "axios";
-import { doRequest, createGame } from "../../functions";
+import { doRequest, createGame, AuthorizationRequired } from "../../functions";
 import { FeedGame, GameOutcome, AllBattles } from "./types";
 import { Socket } from "socket.io-client";
 
 export default class Games {
-	#authorizationToken: string;
+	authorizationToken: string;
 
 	constructor(authorizationToken: string) {
-		this.#authorizationToken = authorizationToken;
+		this.authorizationToken = authorizationToken;
 	}
 
 	private getRandomNumberInclusive(min: number, max: number): number {
@@ -85,6 +85,7 @@ export default class Games {
 	 * @param {35 | 49 | 63} steps
 	 * @returns {Promise<GameOutcome>}
 	 */
+	@AuthorizationRequired
 	public async playLudo(
 		cost: number,
 		steps: 35 | 49 | 63,
@@ -95,7 +96,7 @@ export default class Games {
 			reason?: string;
 			battleId?: number;
 			socket?: Socket;
-		} = await createGame(this.#authorizationToken, "LUDO", {
+		} = await createGame(this.authorizationToken, "LUDO", {
 			maxPlayers: players,
 			steps,
 			rounds: 1,
@@ -137,6 +138,7 @@ export default class Games {
 	 * @param {3 | 2 | 4 } rocks
 	 * @returns {Promise<GameOutcome>}
 	 */
+	@AuthorizationRequired
 	public async playStairs(
 		cost: number,
 		rocks: 3 | 2 | 4,
@@ -147,7 +149,7 @@ export default class Games {
 			reason?: string;
 			battleId?: number;
 			socket?: Socket;
-		} = await createGame(this.#authorizationToken, "STAIRS", {
+		} = await createGame(this.authorizationToken, "STAIRS", {
 			maxPlayers: players,
 			rounds: 1,
 			rocksPerRow: rocks,
@@ -191,6 +193,7 @@ export default class Games {
 	 * @param {2 | 3 = 2} players
 	 * @returns {Promise<GameOutcome>}
 	 */
+	@AuthorizationRequired
 	public async playMines(
 		cost: number,
 		mines: 3 | 2 | 4,
@@ -201,7 +204,7 @@ export default class Games {
 			reason?: string;
 			battleId?: number;
 			socket?: Socket;
-		} = await createGame(this.#authorizationToken, "MINES", {
+		} = await createGame(this.authorizationToken, "MINES", {
 			maxPlayers: players,
 			rounds: 1,
 			minesNumber: mines,
@@ -235,13 +238,23 @@ export default class Games {
 		});
 	}
 
-	public async playTriple(cost: number, players: 2 | 3 = 2) {
+	/**
+	 * Play a game of triple
+	 * @param {number} cost
+	 * @param {2 | 3 = 2} players
+	 * @returns {Promise<GameOutcome>}
+	 */
+	@AuthorizationRequired
+	public async playTriple(
+		cost: number,
+		players: 2 | 3 = 2,
+	): Promise<GameOutcome> {
 		const tripleGame: {
 			success: boolean;
 			reason?: string;
 			battleId?: number;
 			socket?: Socket;
-		} = await createGame(this.#authorizationToken, "TRIPLE", {
+		} = await createGame(this.authorizationToken, "TRIPLE", {
 			maxPlayers: players,
 			rounds: 1,
 			isPrivate: false,

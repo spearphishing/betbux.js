@@ -2,10 +2,10 @@ import { doRequest } from "../../functions";
 import { UserType } from "./types";
 
 export default class Users {
-	#authorizationToken: string;
+	authorizationToken: string;
 
 	constructor(authorizationToken: string) {
-		this.#authorizationToken = authorizationToken;
+		this.authorizationToken = authorizationToken;
 	}
 
 	/**

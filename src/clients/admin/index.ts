@@ -1,11 +1,11 @@
 import { AxiosError } from "axios";
-import { doRequest } from "../../functions";
+import { doRequest, AuthorizationRequired } from "../../functions";
 
 export default class Admin {
-	#authorizationToken: string;
+	authorizationToken: string;
 
 	constructor(authorizationToken: string) {
-		this.#authorizationToken = authorizationToken;
+		this.authorizationToken = authorizationToken;
 	}
 
 	/**
@@ -14,6 +14,7 @@ export default class Admin {
 	 * @param {number} mutePeriodInHours
 	 * @returns {anPromise<{ success: boolean, reason?: string; }>}
 	 */
+	@AuthorizationRequired
 	public async muteUser(
 		userId: number,
 		mutePeriodInHours: number,
@@ -25,7 +26,7 @@ export default class Admin {
 			doRequest({
 				url: `https://api.betbux.gg/admin/users/mute/${userId}`,
 				method: "POST",
-				authorizationToken: this.#authorizationToken,
+				authorizationToken: this.authorizationToken,
 				payload: {
 					mutePeriodInHours,
 				},
@@ -48,6 +49,7 @@ export default class Admin {
 	 * @param {number} battleId
 	 * @returns {Promise<{ success: boolean, reason?: string; }>}
 	 */
+	@AuthorizationRequired
 	public async refundBattle(
 		gameMode: string,
 		battleId: number,
@@ -56,7 +58,7 @@ export default class Admin {
 			await doRequest({
 				url: "https://api.betbux.gg/admin/refund-battle",
 				method: "POST",
-				authorizationToken: this.#authorizationToken,
+				authorizationToken: this.authorizationToken,
 				payload: {
 					gameMode,
 					battleId,

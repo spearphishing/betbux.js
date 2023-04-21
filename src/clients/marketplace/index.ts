@@ -1,18 +1,19 @@
-import { doRequest } from "../../functions";
+import { doRequest, AuthorizationRequired } from "../../functions";
 import { InventoryItem, MarketPlaceEntry } from "./types";
 import { AxiosError } from "axios";
 
 export default class MarketPlace {
-	#authorizationToken: string;
+	authorizationToken: string;
 
 	constructor(authorizationToken: string) {
-		this.#authorizationToken = authorizationToken;
+		this.authorizationToken = authorizationToken;
 	}
 
 	/**
 	 * Fetches the authenticated users limited inventory.
 	 * @returns {Promise<{ success: boolean; data?: InventoryItem[]; reason?: string }>}
 	 */
+	@AuthorizationRequired
 	public async getInventory(): Promise<{
 		success: boolean;
 		data?: InventoryItem[];
@@ -24,7 +25,7 @@ export default class MarketPlace {
 			}>({
 				url: "https://api.betbux.gg/marketplace/list-inventory",
 				method: "GET",
-				authorizationToken: this.#authorizationToken,
+				authorizationToken: this.authorizationToken,
 			});
 
 			return {
@@ -39,6 +40,7 @@ export default class MarketPlace {
 		}
 	}
 
+	@AuthorizationRequired
 	public async getListed(): Promise<{
 		success: boolean;
 		data?: MarketPlaceEntry[];
@@ -49,7 +51,7 @@ export default class MarketPlace {
 				await doRequest<{ data: MarketPlaceEntry[] }>({
 					url: "https://api.betbux.gg/marketplace/get-listed",
 					method: "GET",
-					authorizationToken: this.#authorizationToken,
+					authorizationToken: this.authorizationToken,
 				})
 			).data;
 

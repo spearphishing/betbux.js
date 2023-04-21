@@ -1,5 +1,9 @@
 import { Socket } from "socket.io-client";
-import { doRequest, createWebsocketSession } from "../../functions";
+import {
+	doRequest,
+	createWebsocketSession,
+	AuthorizationRequired,
+} from "../../functions";
 import {
 	StatusEarnDetailsType,
 	WithdrawRobuxType,
@@ -12,21 +16,22 @@ import {
 import { AxiosError } from "axios";
 
 export default class Me {
-	#authorizationToken: string;
+	authorizationToken: string;
 
 	constructor(authorizationToken: string) {
-		this.#authorizationToken = authorizationToken;
+		this.authorizationToken = authorizationToken;
 	}
 
 	/**
 	 * Fetches details on the currently authenticated user.
 	 * @returns {Promise<AuthenticatedUserType>}
 	 */
+	@AuthorizationRequired
 	public async getAuthenticated(): Promise<AuthenticatedUserType> {
 		return await doRequest<AuthenticatedUserType>({
 			url: "https://api.betbux.gg/user/get-user",
 			method: "GET",
-			authorizationToken: this.#authorizationToken,
+			authorizationToken: this.authorizationToken,
 		});
 	}
 
@@ -35,6 +40,7 @@ export default class Me {
 	 * @param {number} amount
 	 * @returns {Promise<WithdrawRobuxType>}
 	 */
+	@AuthorizationRequired
 	public async withdrawRobux(amount: number): Promise<{
 		success: boolean;
 		data?: WithdrawRobuxType;
@@ -44,7 +50,7 @@ export default class Me {
 			const withdrawData = await doRequest<WithdrawRobuxType>({
 				url: "https://api.betbux.gg/p2p/withdraw-robux",
 				method: "POST",
-				authorizationToken: this.#authorizationToken,
+				authorizationToken: this.authorizationToken,
 				payload: { amount },
 			});
 
@@ -64,6 +70,7 @@ export default class Me {
 	 * Cancels a robux transfer given a transfer type.
 	 * @returns {Promise<{ success: boolean, reason?: string }>}
 	 */
+	@AuthorizationRequired
 	public async cancelRobuxTransfer(): Promise<{
 		success: boolean;
 		reason?: string;
@@ -72,7 +79,7 @@ export default class Me {
 			await doRequest({
 				url: "https://api.betbux.gg/p2p/cancel-robux-transfer",
 				method: "POST",
-				authorizationToken: this.#authorizationToken,
+				authorizationToken: this.authorizationToken,
 				payload: { type: "WITHDRAWAL" }, // TODO: Add cancel deposit.
 			});
 
@@ -91,6 +98,7 @@ export default class Me {
 	 * Gets details related to Status Earn.
 	 * @returns {Promise<StatusEarnDetailsType["details"]>}
 	 */
+	@AuthorizationRequired
 	public async getStatusEarnDetails(): Promise<
 		StatusEarnDetailsType["details"]
 	> {
@@ -98,7 +106,7 @@ export default class Me {
 			await doRequest<StatusEarnDetailsType>({
 				url: "https://api.betbux.gg/earn/details",
 				method: "GET",
-				authorizationToken: this.#authorizationToken,
+				authorizationToken: this.authorizationToken,
 			})
 		).details;
 	}
@@ -107,6 +115,7 @@ export default class Me {
 	 * Attempts to claim Status Earn.
 	 * @returns {any}
 	 */
+	@AuthorizationRequired
 	public async claimStatusEarn(): Promise<{
 		success: boolean;
 		reason?: string;
@@ -115,7 +124,7 @@ export default class Me {
 			await doRequest<StatusEarnType>({
 				url: "https://api.betbux.gg/earn/claim-statusearn",
 				method: "POST",
-				authorizationToken: this.#authorizationToken,
+				authorizationToken: this.authorizationToken,
 			});
 
 			return { success: true };
@@ -128,11 +137,12 @@ export default class Me {
 	 * Fetches affiliate details.
 	 * @returns {Promise<AffiliateType>}
 	 */
+	@AuthorizationRequired
 	public async getAffiliateDetails(): Promise<AffiliateType> {
 		return await doRequest<AffiliateType>({
 			url: "https://api.betbux.gg/affiliates",
 			method: "GET",
-			authorizationToken: this.#authorizationToken,
+			authorizationToken: this.authorizationToken,
 		});
 	}
 
@@ -140,6 +150,7 @@ export default class Me {
 	 * Claims the authenticated users Affiliate Earn.
 	 * @returns {Promise<{ success: boolean; reason?: string; }>}
 	 */
+	@AuthorizationRequired
 	public async claimAffiliateEarn(): Promise<{
 		success: boolean;
 		reason?: string;
@@ -148,7 +159,7 @@ export default class Me {
 			await doRequest({
 				url: "https://api.betbux.gg/affiliates/claim-aff-bal",
 				method: "POST",
-				authorizationToken: this.#authorizationToken,
+				authorizationToken: this.authorizationToken,
 			});
 
 			return {
@@ -167,6 +178,7 @@ export default class Me {
 	 * @param {string} newAffiliateCode
 	 * @returns {Promise<{ success: boolean; reason?: string; }>}
 	 */
+	@AuthorizationRequired
 	public async updateAffliateCode(newAffiliateCode: string): Promise<{
 		success: boolean;
 		reason?: string;
@@ -175,7 +187,7 @@ export default class Me {
 			await doRequest({
 				url: "https://api.betbux.gg/affiliates/update-affCode",
 				method: "POST",
-				authorizationToken: this.#authorizationToken,
+				authorizationToken: this.authorizationToken,
 				payload: {
 					newAffCode: newAffiliateCode,
 				},
@@ -198,6 +210,7 @@ export default class Me {
 	 * @param {number} pageNumber
 	 * @returns {Promise<{ success: boolean; transactionData?: SingleTransaction[]; reason?: string; }>}
 	 */
+	@AuthorizationRequired
 	public async getTransactions(
 		pageSize: number,
 		pageNumber: number,
@@ -210,7 +223,7 @@ export default class Me {
 			const transactionData = await doRequest<SingleTransaction[] | []>({
 				url: `https://api.betbux.gg/user/myTrans?pageSize=${pageSize}&pageNumber=${pageNumber}`,
 				method: "GET",
-				authorizationToken: this.#authorizationToken,
+				authorizationToken: this.authorizationToken,
 			});
 
 			if (transactionData.length === 0) {
@@ -237,8 +250,9 @@ export default class Me {
 	 * @param {string} message
 	 * @returns {Promise<ChatResponse>}
 	 */
+	@AuthorizationRequired
 	public async sendMessage(message: string): Promise<ChatResponse> {
-		const soc: Socket = await createWebsocketSession(this.#authorizationToken);
+		const soc: Socket = await createWebsocketSession(this.authorizationToken);
 
 		return new Promise((resolve, reject) => {
 			setTimeout(() => {
@@ -270,6 +284,7 @@ export default class Me {
 	 * @param {number} amountInRobux
 	 * @returns {Promise<ChatResponse>}
 	 */
+	@AuthorizationRequired
 	public async sendTip(
 		recipientUserId: number,
 		amountInRobux: number,
@@ -283,6 +298,7 @@ export default class Me {
 	 * @param {number} robuxPerPerson
 	 * @returns {Promise<ChatResponse>}
 	 */
+	@AuthorizationRequired
 	public async startGiveaway(
 		amountInPeople: number,
 		robuxPerPerson: number,
