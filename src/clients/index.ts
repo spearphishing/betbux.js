@@ -3,9 +3,10 @@ import Users from "./user";
 import MarketPlace from "./marketplace";
 import Games from "./games";
 import Admin from "./admin";
+import { Auth } from "./auth";
 
 export class Client {
-	#authorizationToken: string | null;
+	readonly #authorizationToken: string | null;
 
 	constructor(authorizationToken: string | null) {
 		this.#authorizationToken = authorizationToken;
@@ -16,6 +17,7 @@ export class Client {
 			{ name: "marketplace", classDef: MarketPlace },
 			{ name: "games", classDef: Games },
 			{ name: "admin", classDef: Admin },
+			{ name: "auth", classDef: Auth },
 		];
 
 		for (const { name, classDef } of clients) {
