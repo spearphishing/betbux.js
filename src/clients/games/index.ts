@@ -1,5 +1,10 @@
 import { AxiosError } from "axios";
-import { doRequest, createGame, AuthorizationRequired } from "../../functions";
+import {
+	doRequest,
+	createGame,
+	AuthorizationRequired,
+	gameHandler,
+} from "../../functions";
 import { FeedGame, GameOutcome, AllBattles } from "./types";
 import { Socket } from "socket.io-client";
 
@@ -91,45 +96,20 @@ export default class Games {
 		steps: 35 | 49 | 63,
 		players: 2 | 3 = 2,
 	): Promise<GameOutcome> {
-		const ludoGame: {
-			success: boolean;
-			reason?: string;
-			battleId?: number;
-			socket?: Socket;
-		} = await createGame(this.authorizationToken, "LUDO", {
-			maxPlayers: players,
-			steps,
-			rounds: 1,
-			isPrivate: false,
-			battleCost: cost,
-		});
-
-		return new Promise((resolve, reject) => {
-			if (ludoGame.success) {
-				const diceRollInterval = setInterval(() => {
-					ludoGame.socket?.emit("ROLL_DICE", ludoGame.battleId);
-				}, 1000);
-
-				ludoGame.socket?.on(
-					"LUDO_BATTLE_ENDED",
-					(winner: { id: string; displayName: string; balance: number }) => {
-						clearInterval(diceRollInterval);
-
-						ludoGame.socket?.emit("LEAVE-ROOM", `LUDO-${ludoGame.battleId}`);
-						ludoGame.socket?.disconnect();
-
-						resolve({
-							success: true,
-							winner,
-						});
-					},
-				);
-			} else {
-				reject({
-					success: false,
-				});
-			}
-		});
+		return await gameHandler(
+			this.authorizationToken,
+			"ludo",
+			(socket: Socket | undefined, battleId: number | undefined) => {
+				socket?.emit("ROLL_DICE", battleId);
+			},
+			{
+				maxPlayers: players,
+				steps,
+				rounds: 1,
+				isPrivate: false,
+				battleCost: cost,
+			},
+		);
 	}
 
 	/**
@@ -144,46 +124,24 @@ export default class Games {
 		rocks: 3 | 2 | 4,
 		players: 2 | 3 = 2,
 	): Promise<GameOutcome> {
-		const stairsGame: {
-			success: boolean;
-			reason?: string;
-			battleId?: number;
-			socket?: Socket;
-		} = await createGame(this.authorizationToken, "STAIRS", {
-			maxPlayers: players,
-			rounds: 1,
-			rocksPerRow: rocks,
-			isPrivate: false,
-			battleCost: cost,
-		});
-
-		return new Promise((resolve, reject) => {
-			if (stairsGame.success) {
-				stairsGame.socket?.on("STAIRS_BATTLE_ENDED", (winner) => {
-					clearInterval(climbStairInterval);
-
-					stairsGame.socket?.emit(
-						"LEAVE-ROOM",
-						`STAIRS-${stairsGame.battleId}`,
-					);
-					stairsGame.socket?.disconnect();
-
-					resolve({
-						success: true,
-						...winner,
-					});
-				});
-
-				const climbStairInterval = setInterval(() => {
-					const rand = this.getRandomNumberInclusive(0, 15);
-					stairsGame.socket?.emit("CLIMB_LADDER", stairsGame.battleId, rand);
-				}, 1000);
-			} else {
-				reject({
-					success: false,
-				});
-			}
-		});
+		return await gameHandler(
+			this.authorizationToken,
+			"stairs",
+			(socket: Socket | undefined, battleId: number | undefined) => {
+				socket?.emit(
+					"CLIMB_LADDER",
+					battleId,
+					this.getRandomNumberInclusive(0, 15),
+				);
+			},
+			{
+				maxPlayers: players,
+				rounds: 1,
+				rocksPerRow: rocks,
+				isPrivate: false,
+				battleCost: cost,
+			},
+		);
 	}
 
 	/**
@@ -199,43 +157,24 @@ export default class Games {
 		mines: 3 | 2 | 4,
 		players: 2 | 3 = 2,
 	): Promise<GameOutcome> {
-		const minesGame: {
-			success: boolean;
-			reason?: string;
-			battleId?: number;
-			socket?: Socket;
-		} = await createGame(this.authorizationToken, "MINES", {
-			maxPlayers: players,
-			rounds: 1,
-			minesNumber: mines,
-			isPrivate: false,
-			battleCost: cost,
-		});
-
-		return new Promise((resolve, reject) => {
-			if (minesGame.success) {
-				minesGame.socket?.on("MINES_BATTLE_ENDED", (winner) => {
-					clearInterval(pickMineInterval);
-
-					minesGame.socket?.emit("LEAVE-ROOM", `MINES-${minesGame.battleId}`);
-					minesGame.socket?.disconnect();
-
-					resolve({
-						success: true,
-						...winner,
-					});
-				});
-
-				const pickMineInterval = setInterval(() => {
-					const rand = this.getRandomNumberInclusive(0, 24);
-					minesGame.socket?.emit("FLIP_MINES_TILE", minesGame.battleId, rand);
-				}, 1000);
-			} else {
-				reject({
-					success: false,
-				});
-			}
-		});
+		return await gameHandler(
+			this.authorizationToken,
+			"mines",
+			(socket: Socket | undefined, battleId: number | undefined) => {
+				socket?.emit(
+					"FLIP_MINES_TILE",
+					battleId,
+					this.getRandomNumberInclusive(0, 24),
+				);
+			},
+			{
+				maxPlayers: players,
+				rounds: 1,
+				minesNumber: mines,
+				isPrivate: false,
+				battleCost: cost,
+			},
+		);
 	}
 
 	/**
@@ -249,48 +188,22 @@ export default class Games {
 		cost: number,
 		players: 2 | 3 = 2,
 	): Promise<GameOutcome> {
-		const tripleGame: {
-			success: boolean;
-			reason?: string;
-			battleId?: number;
-			socket?: Socket;
-		} = await createGame(this.authorizationToken, "TRIPLE", {
-			maxPlayers: players,
-			rounds: 1,
-			isPrivate: false,
-			battleCost: cost,
-		});
-
-		return new Promise((resolve, reject) => {
-			if (tripleGame.success) {
-				tripleGame.socket?.on("TRIPLE_BATTLE_ENDED", (winner) => {
-					clearInterval(chooseCellInterval);
-
-					tripleGame.socket?.emit(
-						"LEAVE-ROOM",
-						`TRIPLE-${tripleGame.battleId}`,
-					);
-					tripleGame.socket?.disconnect();
-
-					resolve({
-						success: true,
-						winner,
-					});
-				});
-
-				const chooseCellInterval = setInterval(() => {
-					const rand = this.getRandomNumberInclusive(0, 34);
-					tripleGame.socket?.emit(
-						"CHANGE_CHOSEN_TILES",
-						tripleGame.battleId,
-						rand,
-					);
-				}, 500);
-			} else {
-				reject({
-					success: false,
-				});
-			}
-		});
+		return await gameHandler(
+			this.authorizationToken,
+			"triple",
+			(socket: Socket | undefined, battleId: number | undefined) => {
+				socket?.emit(
+					"CHANGE_CHOSEN_TILES",
+					battleId,
+					this.getRandomNumberInclusive(0, 34),
+				);
+			},
+			{
+				maxPlayers: players,
+				rounds: 1,
+				isPrivate: false,
+				battleCost: cost,
+			},
+		);
 	}
 }

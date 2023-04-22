@@ -1,3 +1,4 @@
+import { GameOutcome } from "../clients/games/types";
 import { createWebsocketSession } from "./requests";
 import { Socket } from "socket.io-client";
 
@@ -68,5 +69,56 @@ export async function createGame(
 				reason,
 			});
 		});
+	});
+}
+
+export async function gameHandler(
+	authorizationToken: string,
+	gameMode: "stairs" | "mines" | "ludo" | "triple",
+	betFunction: (
+		socket: Socket | undefined,
+		battleId: number | undefined,
+	) => void,
+	initializationArguments:
+		| GameArguments
+		| StairsArguments
+		| LudoArguments
+		| MinesArguments,
+): Promise<GameOutcome> {
+	const game: {
+		success: boolean;
+		reason?: string;
+		battleId?: number;
+		socket?: Socket;
+	} = await createGame(authorizationToken, gameMode, initializationArguments);
+
+	return new Promise((resolve, reject) => {
+		if (game.success) {
+			const betInterval = setInterval(() => {
+				betFunction(game.socket, game.battleId);
+			}, 1000);
+
+			game.socket?.on(
+				`${gameMode.toUpperCase()}_BATTLE_ENDED`,
+				(winner: { id: string; displayName: string; balance: number }) => {
+					clearInterval(betInterval);
+
+					game.socket?.emit(
+						"LEAVE-ROOM",
+						`${gameMode.toUpperCase()}-${game.battleId}`,
+					);
+					game.socket?.disconnect();
+
+					resolve({
+						success: true,
+						winner,
+					});
+				},
+			);
+		} else {
+			reject({
+				success: false,
+			});
+		}
 	});
 }
