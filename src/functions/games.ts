@@ -28,6 +28,13 @@ type MinesArguments = GameArguments & {
 	minesNumber: number;
 };
 
+/**
+ * Tries to create a game given a game mode.
+ * @param {string} authorizationToken
+ * @param {string} gameMode
+ * @param {GameArguments | StairsArguments | LudoArguments | MinesArguments} argument
+ * @returns {Promise<CreateGameResponse>}
+ */
 export async function createGame(
 	authorizationToken: string,
 	gameMode: string,
@@ -72,6 +79,14 @@ export async function createGame(
 	});
 }
 
+/**
+ * Automate gameplay of a given game.
+ * @param {string} authorizationToken
+ * @param {"stairs" | "mines" | "ludo" | "triple"} gameMode
+ * @param {(socket: Socket | undefined, battleId: number | undefined): void} betFunction
+ * @param {number | undefined} battleId
+ * @returns {Promise<GameOutcome>}
+ */
 export async function gameHandler(
 	authorizationToken: string,
 	gameMode: "stairs" | "mines" | "ludo" | "triple",
@@ -85,12 +100,11 @@ export async function gameHandler(
 		| LudoArguments
 		| MinesArguments,
 ): Promise<GameOutcome> {
-	const game: {
-		success: boolean;
-		reason?: string;
-		battleId?: number;
-		socket?: Socket;
-	} = await createGame(authorizationToken, gameMode, initializationArguments);
+	const game: CreateGameResponse = await createGame(
+		authorizationToken,
+		gameMode,
+		initializationArguments,
+	);
 
 	return new Promise((resolve, reject) => {
 		if (game.success) {
