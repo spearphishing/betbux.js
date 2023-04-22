@@ -2,7 +2,7 @@ import { AxiosError } from "axios";
 import { doRequest, AuthorizationRequired } from "../../functions";
 
 export default class Admin {
-	authorizationToken: string;
+	readonly authorizationToken: string;
 
 	constructor(authorizationToken: string) {
 		this.authorizationToken = authorizationToken;

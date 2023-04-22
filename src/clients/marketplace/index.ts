@@ -3,7 +3,7 @@ import { InventoryItem, MarketPlaceEntry } from "./types";
 import { AxiosError } from "axios";
 
 export default class MarketPlace {
-	authorizationToken: string;
+	readonly authorizationToken: string;
 
 	constructor(authorizationToken: string) {
 		this.authorizationToken = authorizationToken;

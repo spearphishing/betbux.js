@@ -1,15 +1,10 @@
 import { AxiosError } from "axios";
-import {
-	doRequest,
-	createGame,
-	AuthorizationRequired,
-	gameHandler,
-} from "../../functions";
+import { doRequest, AuthorizationRequired, gameHandler } from "../../functions";
 import { FeedGame, GameOutcome, AllBattles } from "./types";
 import { Socket } from "socket.io-client";
 
 export default class Games {
-	authorizationToken: string;
+	readonly authorizationToken: string;
 
 	constructor(authorizationToken: string) {
 		this.authorizationToken = authorizationToken;

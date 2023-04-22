@@ -16,7 +16,7 @@ import {
 import { AxiosError } from "axios";
 
 export default class Me {
-	authorizationToken: string;
+	readonly authorizationToken: string;
 
 	constructor(authorizationToken: string) {
 		this.authorizationToken = authorizationToken;
