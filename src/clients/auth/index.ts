@@ -9,6 +9,14 @@ export class Auth {
 		this.authorizationToken = authorizationToken;
 	}
 
+	/**
+	 * Attempts to login/initiate a login sessionsession with the provided credentials.
+	 * @param {string} username
+	 * @param {string} password
+	 * @param {string} captchaId?
+	 * @param {string} captchaToken?
+	 * @returns {Promise<{ success: boolean, loginData?: LoginFieldData | SuccessfulLoginData, reason?: string }>}
+	 */
 	public async loginWithCredentials(
 		username: string,
 		password: string,
