@@ -16,17 +16,9 @@ interface GameArguments {
 	battleCost: number;
 }
 
-type StairsArguments = GameArguments & {
-	rocksPerRow: number;
-};
-
-type LudoArguments = GameArguments & {
-	steps: number;
-};
-
-type MinesArguments = GameArguments & {
-	minesNumber: number;
-};
+type StairsArguments = GameArguments & { rocksPerRow: number };
+type LudoArguments = GameArguments & { steps: number };
+type MinesArguments = GameArguments & { minesNumber: number };
 
 /**
  * Tries to create a game given a game mode.
