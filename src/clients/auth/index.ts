@@ -2,7 +2,7 @@ import { AxiosError } from "axios";
 import { doRequest, generateRandomDeviceID } from "../../functions";
 import { LoginFieldData, SuccessfulLoginData } from "./types";
 
-export class Auth {
+export default class Auth {
 	readonly authorizationToken: string;
 
 	constructor(authorizationToken: string) {

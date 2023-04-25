@@ -3,7 +3,7 @@ import Users from "./user";
 import MarketPlace from "./marketplace";
 import Games from "./games";
 import Admin from "./admin";
-import { Auth } from "./auth";
+import Auth from "./auth";
 
 export class Client {
 	readonly #authorizationToken: string | null;

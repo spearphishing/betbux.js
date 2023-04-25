@@ -9,6 +9,6 @@
 		"strictNullChecks": true,
 		"experimentalDecorators": true
 	},
-	"include": ["src"],
+	"include": ["src", "docs"],
 	"exclude": ["node_modules", "**/__tests__/*"]
 }
