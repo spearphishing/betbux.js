@@ -2,9 +2,9 @@
 
 ## Modules
 
-- [admin](modules/admin.md)
-- [auth](modules/auth.md)
-- [games](modules/games.md)
-- [marketplace](modules/marketplace.md)
-- [me](modules/me.md)
+- [admin](clients/admin.md)
+- [auth](clients/auth.md)
+- [games](clients/games.md)
+- [marketplace](clients/marketplace.md)
+- [me](clients/me.md)
 - [user](modules/user.md)
