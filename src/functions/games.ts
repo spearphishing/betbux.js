@@ -9,7 +9,7 @@ type CreateGameResponse = {
 	socket?: Socket;
 };
 
-interface GameArguments {
+type GameArguments = {
 	maxPlayers: number;
 	rounds: number;
 	isPrivate: boolean;
@@ -60,7 +60,7 @@ export async function createGame(
 			},
 		);
 
-		soc.on(`CREATE_${gameMode.toUpperCase()}_BATTLE_FAIL`, (reason) => {
+		soc.on(`CREATE_${gameMode.toUpperCase()}_BATTLE_FAIL`, (reason: object) => {
 			soc.disconnect();
 
 			reject({
@@ -75,8 +75,7 @@ export async function createGame(
  * Automate gameplay of a given game.
  * @param {string} authorizationToken
  * @param {"stairs" | "mines" | "ludo" | "triple"} gameMode
- * @param {(socket: Socket | undefined, battleId: number | undefined): void} betFunction
- * @param {number | undefined} battleId
+ * @param {(socket: Socket | undefined, battleId: number | undefined) => void} betFunction
  * @returns {Promise<GameOutcome>}
  */
 export async function gameHandler(

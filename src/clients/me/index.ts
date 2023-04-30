@@ -262,13 +262,13 @@ export default class Me {
 				});
 			}, 1000);
 
-			soc.on("ERROR", (reason) => {
+			soc.on("ERROR", (reason: object) => {
 				soc.disconnect();
 
 				reject({ success: false, reason });
 			});
 
-			soc.on("BROADCAST_THE_MESSAGE", (data) => {
+			soc.on("BROADCAST_THE_MESSAGE", (data: Array<{content: string}>) => {
 				if (data[0].content === message) {
 					soc.disconnect();
 
@@ -289,7 +289,7 @@ export default class Me {
 		recipientUserId: number,
 		amountInRobux: number,
 	): Promise<ChatResponse> {
-		return this.sendMessage(`.tip ${recipientUserId} ${amountInRobux}`);
+		return await this.sendMessage(`.tip ${recipientUserId} ${amountInRobux}`);
 	}
 
 	/**
@@ -303,6 +303,6 @@ export default class Me {
 		amountInPeople: number,
 		robuxPerPerson: number,
 	): Promise<ChatResponse> {
-		return this.sendMessage(`.giveaway ${amountInPeople} ${robuxPerPerson}`);
+		return await this.sendMessage(`.giveaway ${amountInPeople} ${robuxPerPerson}`);
 	}
 }

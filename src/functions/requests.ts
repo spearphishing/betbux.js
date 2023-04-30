@@ -51,7 +51,7 @@ export function createWebsocketSession(
 			}, 1000); // time to fully connect (needed)
 		});
 
-		socket.on("connect_error", (err) => {
+		socket.on("connect_error", (err: Error) => {
 			reject(new Error(`Unable to connect to betbux: ${err}`));
 		});
 	});

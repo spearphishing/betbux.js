@@ -10,7 +10,7 @@ export default class Auth {
 	}
 
 	/**
-	 * Attempts to login/initiate a login sessionsession with the provided credentials.
+	 * Attempts to login/initiate a login session with the provided credentials.
 	 * @param {string} username
 	 * @param {string} password
 	 * @param {string} captchaId?

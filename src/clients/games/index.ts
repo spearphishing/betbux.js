@@ -175,7 +175,7 @@ export default class Games {
 	/**
 	 * Play a game of triple
 	 * @param {number} cost
-	 * @param {2 | 3 = 2} players
+	 * @param {2 | 3} players
 	 * @returns {Promise<GameOutcome>}
 	 */
 	@AuthorizationRequired

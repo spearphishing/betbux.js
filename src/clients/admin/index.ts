@@ -23,7 +23,7 @@ export default class Admin {
 		reason?: string;
 	}> {
 		try {
-			doRequest({
+			await doRequest({
 				url: `https://api.betbux.gg/admin/users/mute/${userId}`,
 				method: "POST",
 				authorizationToken: this.authorizationToken,
