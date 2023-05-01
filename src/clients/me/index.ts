@@ -268,7 +268,7 @@ export default class Me {
 				reject({ success: false, reason });
 			});
 
-			soc.on("BROADCAST_THE_MESSAGE", (data: Array<{content: string}>) => {
+			soc.on("BROADCAST_THE_MESSAGE", (data: {content: string}[]) => {
 				if (data[0].content === message) {
 					soc.disconnect();
 

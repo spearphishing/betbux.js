@@ -13,13 +13,13 @@ making it an ideal solution for developers of all skill levels.
 To begin using the wrapper, you can install it via NPM:
 
 ```
-npm install betbux
+npm install betbux.js
 ```
 
 Now import it into your project
 
 ```js
-const { Client } = require("betbux");
+const { Client } = require("betbux.js");
 const client = new Client("Authorization Token");
 
 client.me.getAuthenticated()
