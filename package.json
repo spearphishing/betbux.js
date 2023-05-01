@@ -1,6 +1,6 @@
 {
 	"name": "betbux.js",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Betbux.gg API wrapper for simplified interaction with site features. Access gambling and other site functionalities with ease using a well-documented set of functions and methods.",
 	"main": "lib/index.js",
     "types": "lib/index.d.ts",
